@@ -52,25 +52,25 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-router.put('/:id', async (req, res) => {
-  const { error, value } = validateActivity(req.body);
-  if (error) return res.status(400).json(error.details[0].message);
+router.put('/complete/:id', async (req, res) => {
   try {
-    await Activities.findOne({ _id: req.params.id }).exec((err, activity) => {
-      if (err)
-        return res.status(400).json({ message: 'Unable to edit new todo' });
-      if (!activity) return res.status(403).json({ message: 'Todo not found' });
-      activity.title = value.title;
-      activity.description = value.description;
-      activity
-        .save()
-        .then((activity) => {
-          return res.status(200).json({ activity: activity });
-        })
-        .catch((err) => {
-          return res.status(400).json({ message: 'Unable to edit todo' });
-        });
-    });
+    await Activities.findOne({ _id: req.params.id }).exec(
+      async (err, activity) => {
+        if (err)
+          return res.status(400).json({ message: 'Unable to complete todo' });
+        if (!activity)
+          return res.status(403).json({ message: 'Todo not found' });
+        activity.isComplete = true;
+        await activity
+          .save()
+          .then((activity) => {
+            return res.status(200).json({ message: 'todo complete' });
+          })
+          .catch((err) => {
+            return res.status(400).json({ message: 'Unable to complete todo' });
+          });
+      }
+    );
   } catch (err) {
     res.status(400).json({ message: err.message });
   }

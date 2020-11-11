@@ -14,6 +14,10 @@ const ActivitySchema = new Schema(
       minlength: 3,
       trim: true,
     },
+    isComplete: {
+      type: Boolean,
+      default: false,
+    },
   },
   {
     timestamps: true,
