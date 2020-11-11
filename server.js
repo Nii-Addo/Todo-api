@@ -24,8 +24,7 @@ const server = http.createServer(app);
 /*
  **connect to database
  */
-const uri =
-  'mongodb+srv://admin:challenge@cluster0.voi7o.mongodb.net/<dbname>?retryWrites=true&w=majority';
+const uri = process.env.ATLAS_URI;
 const options = {
   useNewUrlParser: true,
   useUnifiedTopology: true,

@@ -13,8 +13,7 @@ const createToken = (user) => {
       iss: 'api.todo',
       aud: 'api.todo',
     },
-    // process.env.JWT_SECRET,
-    'secret123',
+    process.env.JWT_SECRET,
     { algorithm: 'HS256', expiresIn: '1h' }
   );
 };

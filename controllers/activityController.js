@@ -1,8 +1,37 @@
 const express = require('express');
 const router = express.Router();
 const Joi = require('joi');
+const jwtDecode = require('jwt-decode');
+const jwt = require('express-jwt');
 
 const Activities = require('../models/Activity');
+
+const attachUser = (req, res, next) => {
+  const token = req.headers.authorization;
+  if (!token) {
+    return res.status(401).json({ message: 'Authentication invalid' });
+  }
+
+  const decodedToken = jwtDecode(token.slice(7));
+
+  if (!decodedToken) {
+    return res.status(401).json({ message: 'There was a problem authorizing' });
+  } else {
+    req.user = decodedToken;
+    next();
+  }
+};
+
+router.use(attachUser);
+
+const checkJwt = jwt({
+  secret: process.env.JWT_SECRET,
+  algorithms: ['HS256'],
+  issuer: 'api.live-weather',
+  audience: 'api.live-weather',
+});
+
+router.use(checkJwt);
 
 router.post('/', async (req, res) => {
   const { error, value } = validateActivity(req.body);
