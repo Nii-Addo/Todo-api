@@ -18,6 +18,11 @@ const ActivitySchema = new Schema(
       type: Boolean,
       default: false,
     },
+    user: {
+      type: mongoose.Types.ObjectId,
+      required: true,
+      ref: 'User',
+    },
   },
   {
     timestamps: true,

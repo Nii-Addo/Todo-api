@@ -27,17 +27,18 @@ router.use(attachUser);
 const checkJwt = jwt({
   secret: process.env.JWT_SECRET,
   algorithms: ['HS256'],
-  issuer: 'api.live-weather',
-  audience: 'api.live-weather',
+  issuer: 'api.todo',
+  audience: 'api.todo',
 });
 
 router.use(checkJwt);
 
 router.post('/', async (req, res) => {
+  const { sub } = req.user;
   const { error, value } = validateActivity(req.body);
   if (error) return res.status(400).json(error.details[0].message);
   try {
-    const activityDto = { ...value };
+    const activityDto = { ...value, user: sub };
     const activity = new Activities(activityDto);
     await activity
       .save()
@@ -56,14 +57,17 @@ router.post('/', async (req, res) => {
 });
 
 router.get('/', async (req, res) => {
+  const { sub } = req.user;
   try {
-    await Activities.find({}).exec((err, activities) => {
-      if (err)
-        return res.status(400).json({ message: 'Unable to fetch todos' });
-      if (!activities)
-        return res.status(403).json({ message: 'Todos not found' });
-      return res.status(200).json({ activities: activities });
-    });
+    await Activities.find({ user: sub })
+      .sort({ createdAt: -1 })
+      .exec((err, activities) => {
+        if (err)
+          return res.status(400).json({ message: 'Unable to fetch todos' });
+        if (!activities)
+          return res.status(403).json({ message: 'Todos not found' });
+        return res.status(200).json({ activities: activities });
+      });
   } catch (err) {
     res.status(400).json({ message: err.message });
   }
